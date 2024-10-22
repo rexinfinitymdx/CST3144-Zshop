@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pet Store App</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
+</head>
+<body>
+
+
+<div id="app">
+  <header class="bg-warning text-white p-4">
+    <h1 v-text="sitename" class="text-center"></h1>  <a href="./cart.html" class="btn btn-primary mt-2"><strong>{{ cartCount }}</strong> <span class="fas fa-cart-plus"></span> Checkout</a> 
+  </header>
+
+  <main class="container mt-2">
+    <div class="row">
+      <div class="col-md-4">
+        <figure>
+          <img v-bind:src="product.image" alt="Product image" class="img-fluid" width="150px">
+        </figure>
+      </div>
+      <div class="col-md-4">
+        <h2 v-text="product.title"></h2>
+        <p v-html="product.description"></p>
+        <p><strong>Price: {{ product.symbol }} {{ product.price }}</strong></p>
+
+        <button @click="addToCart" :disabled="!canAddToCart" class="btn btn-success">Add to cart
+        </button>
+       
+      </div>
+    </div>
+  </main>
+</div>
+
+
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      sitename: 'Vue.js Pet Depot',
+      product: {
+        id: 1001,
+        title: "Cat Toy, 1 packet",
+        description: "A 25-pound box of pure joy for your cat! Inside is a fun, bouncy ball designed to keep your feline entertained for hours, encouraging active play and exercise. Perfect for curious paws!.",
+        price: 20,
+        symbol: '£',
+        image: "images/cat1.png",
+        max_available: 5
+      },
+      cart: []
+    },
+    methods: {
+      addToCart() {
+        this.cart.push(this.product.id);
+      }
+    },
+    computed: {
+      cartCount() {
+        return this.cart.length;
+      },
+canAddToCart: function() {
+return this.product.max_available > this.cartCount;
+}
+    }
+  });
+</script>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
