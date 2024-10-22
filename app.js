@@ -1,9 +1,16 @@
-var express = require("express"); // Requires the Express module
-var http = require('http');
-// Calls the express function to start a new Express application
-var app = express();
-app.use(function(request, response) { // middleware
- console.log("In comes a request to: " + request.url);
- response.end("Hello, world 2!");
+const express = require('express');
+const path = require('path');
+const app = express();
+
+// Serve static files from a directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Route to serve index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-http.createServer(app).listen(81); // start the server
+
+const port = 81;
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running at http://36.50.40.177:${port}/`);
+});
