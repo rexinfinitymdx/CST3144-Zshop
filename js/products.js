@@ -6,7 +6,8 @@ let products  = [
         price: 5,
         image: "/images/Milk-Chocolate-Delight.jpg",
         availableInventory: 25,
-        rating: 5
+        rating: 5,
+        location: "London"
     },
     {
         id: 2,
@@ -15,7 +16,8 @@ let products  = [
         price: 7,
         image: "/images/Dark-Chocolate-Bliss.jpg",
         availableInventory: 20,
-        rating: 4
+        rating: 4,
+        location: "Manchester"
     },
     {
         id: 3,
@@ -24,7 +26,8 @@ let products  = [
         price: 8,
         image: "/images/Hazelnut-Chocolate-Spread.jpg",
         availableInventory: 15,
-        rating: 5
+        rating: 5,
+        location: "Edinburgh"
     },
     {
         id: 4,
@@ -33,7 +36,8 @@ let products  = [
         price: 6,
         image: "/images/White-Chocolate-Treat.jpg",
         availableInventory: 10,
-        rating: 4
+        rating: 4,
+        location: "Birmingham"
     },
     {
         id: 5,
@@ -42,7 +46,8 @@ let products  = [
         price: 15,
         image: "/images/ChocolateTruffleBox.jpg",
         availableInventory: 5,
-        rating: 5
+        rating: 5,
+        location: "Liverpool"
     },
     {
         id: 6,
@@ -51,7 +56,8 @@ let products  = [
         price: 4,
         image: "/images/mint-bar.jpg",
         availableInventory: 30,
-        rating: 3
+        rating: 3,
+        location: "Brighton"
     },
     {
         id: 7,
@@ -60,7 +66,8 @@ let products  = [
         price: 10,
         image: "/images/Chocolate-Chip-Cookies.jpg",
         availableInventory: 12,
-        rating: 5
+        rating: 5,
+        location: "Leeds"
     },
     {
         id: 8,
@@ -69,7 +76,8 @@ let products  = [
         price: 9,
         image: "/images/Hot-Chocolate-Mix.jpg",
         availableInventory: 18,
-        rating: 4
+        rating: 4,
+        location: "Cardiff"
     },
     {
         id: 9,
@@ -78,7 +86,8 @@ let products  = [
         price: 20,
         image: "/images/Chocolate-Fudge-Cake.jpg",
         availableInventory: 7,
-        rating: 5
+        rating: 5,
+        location: "Bristol"
     },
     {
         id: 10,
@@ -87,6 +96,7 @@ let products  = [
         price: 12,
         image: "/images/ChocolateDippedStrawberries.jpg",
         availableInventory: 9,
-        rating: 4
+        rating: 4,
+        location: "Glasgow"
     }
 ];
