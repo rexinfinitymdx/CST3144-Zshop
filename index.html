@@ -62,10 +62,6 @@
               <!--Sort by start-->
               <div class="col-12">
                 <div class="row">
-                    <h4 class="card-title mb-3">Find Your lessons</h4>
-                    <div class="form-outline mb-4" data-mdb-input-init>
-                        <input type="search" id="form1" class="form-control" placeholder="Search" aria-label="Search" v-model="searchQuery"/>
-                    </div>
                     <div class="col-md-6">
                         <label for="sortAttribute" class="form-label"><strong>Sort by:</strong></label>
                         <select class="form-select" v-model="sortAttribute">
@@ -275,150 +271,180 @@
         <!-- Checkout Page End-->
 
     </main>
+
     <script>
         let app = new Vue({
-        el: '#app',
-        data: {
-            showProduct: true,
-            products: products,  // Assume the products are already defined in the 'products.js' file
-            cart: [],
-            order: {
-                fullName: "",
-                phoneNumber: "",
-                address: "",
-                city: "",
-                state: "",
-                zip: "",
-                gift: "",
-                method: ""
+            el: '#app',
+            data: {
+                showProduct: true,
+                products: [], // Initialize as an empty array
+                cart: [],
+                order: {
+                    fullName: "",
+                    phoneNumber: "",
+                    address: "",
+                    city: "",
+                    state: "",
+                    zip: "",
+                    gift: "",
+                    method: ""
+                },
+                sortAttribute: 'price', 
+                sortOrder: 'asc',
+                searchQuery: "",
+                states: {
+                    AL: "Alabama",
+                    AR: "Arizona",
+                    CA: "California",
+                    NV: "Nevada"
+                }
             },
-            sortAttribute: 'price', 
-            sortOrder: 'asc',
-            states: {
-                AL: "Alabama",
-                AR: "Arizona",
-                CA: "California",
-                NV: "Nevada"
-            }
-        },
-        computed: {
+            computed: {
+                uniqueCart() {
+                    return this.cart.reduce((acc, item) => {
+                        const existingItem = acc.find(i => i.id === item.id);
+                        if (existingItem) {
+                            existingItem.quantity += item.quantity; 
+                        } else {
+                            acc.push({ id: item.id, quantity: item.quantity });
+                        }
+                        return acc;
+                    }, []);
+                },
+                sortedProducts() {
+                    return this.products.slice().sort((a, b) => {
+                        let comparison = 0;
+                        if (this.sortAttribute === 'price' || this.sortAttribute === 'availableSeats') {
+                            comparison = a[this.sortAttribute] - b[this.sortAttribute];
+                        } else {
+                            const aValue = a[this.sortAttribute].toString().toLowerCase();
+                            const bValue = b[this.sortAttribute].toString().toLowerCase();
+                            comparison = aValue.localeCompare(bValue);
+                        }
+                        return this.sortOrder === 'asc' ? comparison : -comparison;
+                    });
+                },
+                cartItemCount() {
+                    return this.cart.length;
+                },
+                isFormValid() {
+                    return this.validateName(this.order.fullName) && this.validatePhone(this.order.phoneNumber);
+                }
+            },
+            methods: {
+                fetchProducts(search = "") {
+                    const url = search
+                ? `http://36.50.40.177:3000/show/products?search=${encodeURIComponent(
+                      search
+                  )}`
+                : `http://36.50.40.177:3000/show/products`;
 
-            uniqueCart() {
-                return this.cart.reduce((acc, item) => {
-                    const existingItem = acc.find(i => i.id === item.id);
-                    if (existingItem) {
-                        existingItem.quantity += item.quantity; 
+            fetch(url)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to fetch products.');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            this.products = data;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching products:', error);
+                        });
+                },
+                addToCart(product) {
+                    const cartItem = this.cart.find(item => item.id === product.id);
+                    if (cartItem) {
+                        cartItem.quantity++;
                     } else {
-                        acc.push({ id: item.id, quantity: item.quantity });
+                        this.cart.push({ id: product.id, quantity: 1 });
                     }
-                    return acc;
-                }, []);
-            },
-            
-            sortedProducts() {
-                return this.products.slice().sort((a, b) => {
-                    let comparison = 0;
-                    if (this.sortAttribute === 'price' || this.sortAttribute === 'availableSeats') {
-                        comparison = a[this.sortAttribute] - b[this.sortAttribute];
-                    } else {
-                        const aValue = a[this.sortAttribute].toString().toLowerCase();
-                        const bValue = b[this.sortAttribute].toString().toLowerCase();
-                        comparison = aValue.localeCompare(bValue);
-                    }
-                    return this.sortOrder === 'asc' ? comparison : -comparison;
-                });
-            },
-            cartItemCount() {
-                return this.cart.length;
-            },
-            isFormValid() {
-                return this.validateName(this.order.fullName) && this.validatePhone(this.order.phoneNumber);
-            }
-        },
-        methods: {
-            addToCart(product) {
-                const cartItem = this.cart.find(item => item.id === product.id);
-                if (cartItem) {
-                    cartItem.quantity++;
-                } else {
-                    this.cart.push({ id: product.id, quantity: 1 });
-                }
-                product.availableSeats--;
-            },
-            removeFromCart(index, productId) {
-                const cartItem = this.cart.find(item => item.id === productId);
-                if (cartItem) {
-                    const product = this.getProduct(productId);
-                    product.availableSeats += cartItem.quantity; 
-                    this.cart.splice(this.cart.indexOf(cartItem), 1);
-                }
-            },
-            increaseQuantity(productId) {
-                const cartItem = this.cart.find(item => item.id === productId);
-                const product = this.getProduct(productId);
-                if (cartItem && product.availableSeats > 0) {
-                    cartItem.quantity++;
                     product.availableSeats--;
-                } else {
-                    alert("Unable to increase quantity due to insufficient inventory.");
-                }
-            },
-            decreaseQuantity(productId) {
-                const cartItem = this.cart.find(item => item.id === productId);
-                const product = this.getProduct(productId);
-
-                if (cartItem) {
-                    if (cartItem.quantity > 1) {
-                        cartItem.quantity--;
-                        product.availableSeats++;
+                },
+                removeFromCart(index, productId) {
+                    const cartItem = this.cart.find(item => item.id === productId);
+                    if (cartItem) {
+                        const product = this.getProduct(productId);
+                        product.availableSeats += cartItem.quantity; 
+                        this.cart.splice(this.cart.indexOf(cartItem), 1);
+                    }
+                },
+                increaseQuantity(productId) {
+                    const cartItem = this.cart.find(item => item.id === productId);
+                    const product = this.getProduct(productId);
+                    if (cartItem && product.availableSeats > 0) {
+                        cartItem.quantity++;
+                        product.availableSeats--;
                     } else {
-                        this.removeFromCart(this.cart.indexOf(cartItem), productId);
+                        alert("Unable to increase quantity due to insufficient inventory.");
+                    }
+                },
+                decreaseQuantity(productId) {
+                    const cartItem = this.cart.find(item => item.id === productId);
+                    const product = this.getProduct(productId);
+    
+                    if (cartItem) {
+                        if (cartItem.quantity > 1) {
+                            cartItem.quantity--;
+                            product.availableSeats++;
+                        } else {
+                            this.removeFromCart(this.cart.indexOf(cartItem), productId);
+                        }
+                    }
+                },
+                totalCartPrice() {
+                    return this.uniqueCart.reduce((total, item) => {
+                        const product = this.getProduct(item.id);
+                        return total + (product.price * item.quantity);
+                    }, 0);
+                },
+                getProduct(id) {
+                    return this.products.find(product => product.id === id);
+                },
+                canAddToCart(product) {
+                    return product.availableSeats > 0; 
+                },
+                cartCount(id) {
+                    return this.cart.filter(item => item === id).length;
+                },
+                showCheckout() {
+                    this.showProduct = !this.showProduct;
+                },
+                totalCartItems() {
+                    return this.uniqueCart.reduce((total, item) => total + item.quantity, 0);
+                },
+                validateName(name) {
+                    const namePattern = /^[A-Za-z]+$/;
+                    return namePattern.test(name);
+                },
+                validatePhone(phone) {
+                    const phonePattern = /^[0-9]+$/;
+                    return phonePattern.test(phone);
+                },
+                validateForm() {
+                    this.fullNameValid = this.validateName(this.order.fullName);
+                    this.phoneNumberValid = this.validatePhone(this.order.phoneNumber);
+                },
+                submitForm() {
+                    if (this.isFormValid && this.cartItemCount > 0) {
+                        alert("Your order has been placed successfully!");
+                    } else {
+                        alert("Please provide valid information.");
                     }
                 }
             },
-            totalCartPrice() {
-                return this.uniqueCart.reduce((total, item) => {
-                    const product = this.getProduct(item.id);
-                    return total + (product.price * item.quantity);
-                }, 0);
-            },
-            getProduct(id) {
-                return this.products.find(product => product.id === id);
-            },
-            canAddToCart(product) {
-                return product.availableSeats > 0; 
-            },
-            cartCount(id) {
-                return this.cart.filter(item => item === id).length;
-            },
-            showCheckout() {
-                this.showProduct = !this.showProduct;
-            },
-            totalCartItems() {
-                return this.uniqueCart.reduce((total, item) => total + item.quantity, 0);
-            },
-            validateName(name) {
-                const namePattern = /^[A-Za-z]+$/;
-                return namePattern.test(name);
-            },
-            validatePhone(phone) {
-                const phonePattern = /^[0-9]+$/;
-                return phonePattern.test(phone);
-            },
-            validateForm() {
-                this.fullNameValid = this.validateName(this.order.fullName);
-                this.phoneNumberValid = this.validatePhone(this.order.phoneNumber);
-            },
-            submitForm() {
-                if (this.isFormValid && this.cartItemCount > 0) {
-                    alert("Your order has been placed successfully!");
-                } else {
-                    alert("Please provide valid information.");
-                }
+            watch: {
+        // Watch for changes in the search query and fetch products dynamically
+        searchQuery(newQuery) {
+            this.fetchProducts(newQuery);
+        },
+    },
+    
+            mounted() {
+                this.fetchProducts(); // Fetch products when the app is mounted
             }
-        }
-    });
-
+        });
     </script>
     
     
