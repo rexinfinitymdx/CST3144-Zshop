@@ -342,7 +342,7 @@
             methods: {
                 fetchProducts(search = "") {
                     const url = search
-                ? `http://36.50.40.177:3000/show/products?search=${encodeURIComponent(
+                ? `http://36.50.40.177:3000/show/products/search/${encodeURIComponent(
                       search
                   )}`
                 : `http://36.50.40.177:3000/show/products`;
