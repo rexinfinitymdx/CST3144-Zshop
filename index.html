@@ -355,9 +355,9 @@
         },
         methods: {
           fetchProducts(search = "") {
-            const url = search ? `http://36.50.40.177:3000/show/products/search/${encodeURIComponent(
+            const url = search ? `https://mynodeappmdx.eu-west-2.elasticbeanstalk.com/show/products/search/${encodeURIComponent(
                       search
-                  )}` : `http://36.50.40.177:3000/show/products`;
+                  )}` : `https://mynodeappmdx.eu-west-2.elasticbeanstalk.com/show/products`;
             fetch(url).then(response => {
               if (!response.ok) {
                 throw new Error('Failed to fetch products.');
