@@ -423,14 +423,14 @@
           getProduct(id) {
             return this.products.find(product => product.id === id);
           },
+          totalCartItems() {
+            return this.uniqueCart.reduce((total, item) => total + item.quantity, 0);
+          },
           canAddToCart(product) {
             return product.availableSeats > 0;
           },
           cartCount(id) {
             return this.cart.filter(item => item === id).length;
-          },
-          totalCartItems() {
-            return this.uniqueCart.reduce((total, item) => total + item.quantity, 0);
           },
           validateName(name) {
             const namePattern = /^[A-Za-z\s]+$/;
