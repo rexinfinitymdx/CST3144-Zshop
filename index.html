@@ -72,18 +72,18 @@
               </div>
               <div class="col-md-6">
                 <label for="sortOrder" class="form-label">
-                    <strong>Order:</strong>
-                  </label>
-                  <div style="display: flex; gap: 10px; align-items: center;">
-                    <div>
-                      <input class="form-check-input" type="radio" id="orderAsc" value="asc" v-model="sortOrder" />
-                      <label class="form-check-label" for="orderAsc">Ascending</label>
-                    </div>
-                    <div>
-                      <input class="form-check-input" type="radio" id="orderDesc" value="desc" v-model="sortOrder" />
-                      <label class="form-check-label" for="orderDesc">Descending</label>
-                    </div>
+                  <strong>Order:</strong>
+                </label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div>
+                    <input class="form-check-input" type="radio" id="orderAsc" value="asc" v-model="sortOrder" />
+                    <label class="form-check-label" for="orderAsc">Ascending</label>
                   </div>
+                  <div>
+                    <input class="form-check-input" type="radio" id="orderDesc" value="desc" v-model="sortOrder" />
+                    <label class="form-check-label" for="orderDesc">Descending</label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -118,10 +118,12 @@
                     <!-- Rating End-->
                     <br>
                     <button class="btn btn-danger" v-on:click="addToCart(product)" :disabled="!checkAddToCart(product)"> Add to cart </button>
-                    <!-- Availability Conditionals Start-->
-                    <span v-else-if="product.availableSeats < 5">Only {{ product.availableSeats }} left! </span>
-                    <span v-else>Buy now!</span>
-                    <!-- Availability Conditionals End-->
+<!-- Availability Conditionals Start-->
+<span v-if="product.availableSeats === 0">Out of stock</span>
+<span v-else-if="product.availableSeats < 5">Only {{ product.availableSeats }} left!</span>
+<span v-else><button class="btn btn-warning" disabled> Buy Now </button></span>
+<!-- Availability Conditionals End-->
+
                   </div>
                 </div>
               </div>
@@ -192,7 +194,7 @@
                   <label for="phoneNumber" class="form-label">
                     <strong>Phone Number:</strong>
                   </label>
-                  <input type="number" class="form-control" id="phoneNumber" v-model.trim="order.phoneNumber" @input="validateForm">
+                  <input type="number" class="form-control" id="phoneNumber" v-model.trim="order.phoneNumber" @input="validateForm" :class="{'is-invalid': !fullNameValid && order.fullName.length > 10}">
                 </div>
               </div>
               <div class="row">
@@ -292,6 +294,8 @@
       let app = new Vue({
         el: '#app',
         data: {
+          fullNameValid: "",
+          phoneNumberValid: "",
           showLessons: true,
           products: [], // Initialize as an empty array
           cart: [],
@@ -369,6 +373,21 @@
               console.error('Error fetching products:', error);
             });
           },
+          showCheckout() {
+            this.showLessons = !this.showLessons;
+          },
+          resetOrder() {
+            this.order = {
+              fullName: "",
+              phoneNumber: "",
+              address: "",
+              city: "",
+              state: "",
+              zip: "",
+              gift: "",
+              method: ""
+            };
+          },
           addToCart(product) {
             const cartItem = this.cart.find(item => item.id === product.id);
             if (cartItem) {
@@ -388,6 +407,11 @@
               product.availableSeats += cartItem.quantity;
               this.cart.splice(this.cart.indexOf(cartItem), 1);
             }
+
+                        // If cart becomes empty, call showCheckout
+    if (this.cart.length === 0) {
+      this.showCheckout();
+    }
           },
           addQuantity(productId) {
             const cartItem = this.cart.find(item => item.id === productId);
@@ -407,6 +431,11 @@
                 cartItem.quantity--;
                 product.availableSeats++;
               } else {
+// If cart becomes empty, call showCheckout
+    if (this.cart.length === 0) {
+      this.showCheckout();
+    }
+
                 this.removeFromCart(this.cart.indexOf(cartItem), productId);
               }
             }
@@ -416,9 +445,6 @@
               const product = this.getProduct(item.id);
               return total + (product.price * item.quantity);
             }, 0);
-          },
-          showCheckout() {
-            this.showLessons = !this.showLessons;
           },
           getProduct(id) {
             return this.products.find(product => product.id === id);
@@ -452,63 +478,57 @@
             }
           },
           submitOrder() {
-  const payload = {
-    orderDetails: this.order,
-    cartItems: this.uniqueCart.map(item => ({
-      id: item.id,
-      quantity: item.quantity
-    }))
-  };
-
-  fetch('https://mynodeappmdx.eu-west-2.elasticbeanstalk.com/store/orders', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  })
-    .then(response => {
-      if (response.ok) {
-        // Notify the user about successful order submission
-        alert("Your order has been submitted successfully!");
-
-        // Prepare the cartItems payload
-        const updatePayload = this.uniqueCart.map(item => ({
-          id: item.id,
-          quantity: item.quantity
-        }));
-
-        // Send cartItems to the update URL
-        fetch('https://mynodeappmdx.eu-west-2.elasticbeanstalk.com/update/products', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(updatePayload)
-        })
-          .then(updateResponse => {
-            if (updateResponse.ok) {
-              console.log("Products updated successfully!");
-            } else {
-              console.error("Failed to update products.");
-            }
-          })
-          .catch(updateError => {
-            console.error('Error updating products:', updateError);
-          });
-
-        // Clear cart after successful submission
-        this.cart = [];
-      } else {
-        alert("Failed to submit order. Please try again.");
-      }
-    })
-    .catch(error => {
-      console.error('Error submitting order:', error);
-      alert("An error occurred while submitting the order.");
-    });
-}
-
+            const payload = {
+              orderDetails: this.order,
+              cartItems: this.uniqueCart.map(item => ({
+                id: item.id,
+                quantity: item.quantity
+              }))
+            };
+            fetch('https://mynodeappmdx.eu-west-2.elasticbeanstalk.com/store/orders', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            }).then(response => {
+              if (response.ok) {
+                // Prepare the cartItems payload
+                const updatePayload = {
+                  cartItems: this.uniqueCart.map(item => ({
+                    id: item.id,
+                    quantity: item.quantity
+                  }))
+                };
+                // Send cartItems to the update URL
+                fetch('https://mynodeappmdx.eu-west-2.elasticbeanstalk.com/update/products', {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(updatePayload)
+                }).then(updateResponse => {
+                  if (updateResponse.ok) {
+                    // Notify the user about successful order submission
+                    alert("Your order has been submitted successfully!");
+                    this.showCheckout(); // hide Checkout 
+                  } else {
+                    console.error("Your order has been submitted but Failed to update products.");
+                  }
+                }).catch(updateError => {
+                  console.error('Error updating products:', updateError);
+                });
+                // Clear cart and order info after successful submission
+                this.cart = [];
+                this.resetOrder();
+              } else {
+                alert("Failed to submit order. Please try again.");
+              }
+            }).catch(error => {
+              console.error('Error submitting order:', error);
+              alert("An error occurred while submitting the order.");
+            });
+          }
         },
         watch: {
           // Watch for changes in the search query and fetch products dynamically
