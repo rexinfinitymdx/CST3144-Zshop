@@ -117,7 +117,7 @@
                     </div>
                     <!-- Rating End-->
                     <br>
-                    <button class="btn btn-danger" v-on:click="addToCart(product)" :disabled="!canAddToCart(product)"> Add to cart </button>
+                    <button class="btn btn-danger" v-on:click="addToCart(product)" :disabled="!checkAddToCart(product)"> Add to cart </button>
                     <!-- Availability Conditionals Start-->
                     <span v-else-if="product.availableSeats < 5">Only {{ product.availableSeats }} left! </span>
                     <span v-else>Buy now!</span>
@@ -169,7 +169,7 @@
             </li>
           </ul>
           <!-- Display Total Price -->
-          <h4>Total Cost: £{{ totalCartPrice() }}</h4>
+          <h4>Total Cost: £{{ sumCartPrice() }}</h4>
         </div>
         <div v-else>
           <h5 class="card-title">Your cart is empty.</h5>
@@ -396,7 +396,7 @@
               cartItem.quantity++;
               product.availableSeats--;
             } else {
-              alert("Unable to increase quantity due to insufficient inventory.");
+              alert("Unable to increase quantity due to insufficient Seats.");
             }
           },
           removeQuantity(productId) {
@@ -411,7 +411,7 @@
               }
             }
           },
-          totalCartPrice() {
+          sumCartPrice() {
             return this.uniqueCart.reduce((total, item) => {
               const product = this.getProduct(item.id);
               return total + (product.price * item.quantity);
@@ -426,7 +426,7 @@
           totalCartItems() {
             return this.uniqueCart.reduce((total, item) => total + item.quantity, 0);
           },
-          canAddToCart(product) {
+          checkAddToCart(product) {
             return product.availableSeats > 0;
           },
           cartCount(id) {
@@ -452,31 +452,63 @@
             }
           },
           submitOrder() {
-            const payload = {
-              orderDetails: this.order,
-              cartItems: this.uniqueCart.map(item => ({
-                id: item.id,
-                quantity: item.quantity
-              }))
-            };
-            fetch('https://mynodeappmdx.eu-west-2.elasticbeanstalk.com/store/orders', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(payload)
-            }).then(response => {
-              if (response.ok) {
-                alert("Your order has been submitted successfully!");
-                this.cart = []; // Clear cart after successful submission
-              } else {
-                alert("Failed to submit order. Please try again.");
-              }
-            }).catch(error => {
-              console.error('Error submitting order:', error);
-              alert("An error occurred while submitting the order.");
-            });
-          }
+  const payload = {
+    orderDetails: this.order,
+    cartItems: this.uniqueCart.map(item => ({
+      id: item.id,
+      quantity: item.quantity
+    }))
+  };
+
+  fetch('https://mynodeappmdx.eu-west-2.elasticbeanstalk.com/store/orders', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+    .then(response => {
+      if (response.ok) {
+        // Notify the user about successful order submission
+        alert("Your order has been submitted successfully!");
+
+        // Prepare the cartItems payload
+        const updatePayload = this.uniqueCart.map(item => ({
+          id: item.id,
+          quantity: item.quantity
+        }));
+
+        // Send cartItems to the update URL
+        fetch('https://mynodeappmdx.eu-west-2.elasticbeanstalk.com/update/products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updatePayload)
+        })
+          .then(updateResponse => {
+            if (updateResponse.ok) {
+              console.log("Products updated successfully!");
+            } else {
+              console.error("Failed to update products.");
+            }
+          })
+          .catch(updateError => {
+            console.error('Error updating products:', updateError);
+          });
+
+        // Clear cart after successful submission
+        this.cart = [];
+      } else {
+        alert("Failed to submit order. Please try again.");
+      }
+    })
+    .catch(error => {
+      console.error('Error submitting order:', error);
+      alert("An error occurred while submitting the order.");
+    });
+}
+
         },
         watch: {
           // Watch for changes in the search query and fetch products dynamically
