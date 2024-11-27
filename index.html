@@ -490,13 +490,17 @@
               body: JSON.stringify(payload)
             }).then(response => {
               if (response.ok) {
-                // Prepare the cartItems payload
-                const updatePayload = {
-                  cartItems: this.uniqueCart.map(item => ({
-                    id: item.id,
-                    quantity: item.quantity
-                  }))
-                };
+        // Prepare the availableSeats payload
+        const updatePayload = {
+    updateItems: this.uniqueCart.map(item => {
+        const product = this.getProduct(item.id);
+        return {
+            id: item.id,
+            availableSeats: product.availableSeats
+        };
+    })
+};
+
                 // Send cartItems to the update URL
                 fetch('https://mynodeappmdx.eu-west-2.elasticbeanstalk.com/update/products', {
                   method: 'PUT',
