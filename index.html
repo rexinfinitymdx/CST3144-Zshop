@@ -187,13 +187,13 @@
                   <label for="fullName" class="form-label">
                     <strong>Full Name:</strong>
                   </label>
-                  <input type="text" class="form-control" id="fullName" v-model.trim="order.fullName" @input="validateForm" :class="{'is-invalid': !fullNameValid}">
+                  <input type="text" class="form-control" id="fullName" v-model.trim="order.fullName" @input="validateForm" :class="{'is-invalid': !fullNameValid && order.fullName.length > 0}">
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="phoneNumber" class="form-label">
                     <strong>Phone Number:</strong>
                   </label>
-                  <input type="tel" class="form-control" id="phoneNumber" v-model.trim="order.phoneNumber" @input="validateForm" :class="{'is-invalid': !phoneNumberValid}">
+                  <input type="tel" class="form-control" id="phoneNumber" v-model.trim="order.phoneNumber" @input="validateForm" :class="{'is-invalid': !phoneNumberValid && order.phoneNumber.length > 10}">
                 </div>
               </div>
               <div class="row">
@@ -201,13 +201,13 @@
                   <label for="address" class="form-label">
                     <strong>Address:</strong>
                   </label>
-                  <input type="text" class="form-control" id="address" v-model.trim="order.address" required>
+                  <input type="text" class="form-control" id="address" v-model.trim="order.address">
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="city" class="form-label">
                     <strong>City:</strong>
                   </label>
-                  <input type="text" class="form-control" id="city" v-model.trim="order.city" required>
+                  <input type="text" class="form-control" id="city" v-model.trim="order.city">
                 </div>
               </div>
               <div class="row">
@@ -215,7 +215,7 @@
                   <label for="state" class="form-label">
                     <strong>State:</strong>
                   </label>
-                  <select class="form-select" id="state" v-model.trim="order.state" required>
+                  <select class="form-select" id="state" v-model.trim="order.state">
                     <option disabled value="">Select State</option>
                     <option v-for="(state, key) in states" :key="key" :value="key">{{ state }}</option>
                   </select>
@@ -224,7 +224,7 @@
                   <label for="zip" class="form-label">
                     <strong>Zip/Postal Code:</strong>
                   </label>
-                  <input type='number' class="form-control" id="zip" v-model.number="order.zip" required>
+                  <input type='number' class="form-control" id="zip" v-model.number="order.zip">
                 </div>
               </div>
               <div class="row">
