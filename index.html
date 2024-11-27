@@ -187,13 +187,13 @@
                   <label for="fullName" class="form-label">
                     <strong>Full Name:</strong>
                   </label>
-                  <input type="text" class="form-control" id="fullName" v-model.trim="order.fullName" @input="validateForm" :class="{'is-invalid': !fullNameValid && order.fullName.length > 0}">
+                  <input type="text" class="form-control" id="fullName" v-model.trim="order.fullName" @input="validateForm" :class="{'is-invalid': !validateName && order.fullName.length > 0}">
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="phoneNumber" class="form-label">
                     <strong>Phone Number:</strong>
                   </label>
-                  <input type="number" class="form-control" id="phoneNumber" v-model.trim="order.phoneNumber" @input="validateForm" :class="{'is-invalid': !fullNameValid && order.fullName.length > 10}">
+                  <input type="number" class="form-control" id="phoneNumber" v-model.trim="order.phoneNumber" @input="validateForm" :class="{'is-invalid': !validatePhone && order.fullName.length > 10}">
                 </div>
               </div>
               <div class="row">
@@ -293,8 +293,6 @@
       let app = new Vue({
         el: '#app',
         data: {
-          fullNameValid: "",
-          phoneNumberValid: "",
           showLessons: true,
           products: [], // Initialize as an empty array
           cart: [],
