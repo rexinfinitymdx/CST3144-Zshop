@@ -193,7 +193,7 @@
                   <label for="phoneNumber" class="form-label">
                     <strong>Phone Number:</strong>
                   </label>
-                  <input type="number" class="form-control" id="phoneNumber" v-model.trim="order.phoneNumber" @input="validateForm" :class="{'is-invalid': !phoneNumberValid}">
+                  <input type="tel" class="form-control" id="phoneNumber" v-model.trim="order.phoneNumber" @input="validateForm" :class="{'is-invalid': !phoneNumberValid}">
                 </div>
               </div>
               <div class="row">
@@ -201,13 +201,13 @@
                   <label for="address" class="form-label">
                     <strong>Address:</strong>
                   </label>
-                  <input type="text" class="form-control" id="address" v-model.trim="order.address">
+                  <input type="text" class="form-control" id="address" v-model.trim="order.address" required>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="city" class="form-label">
                     <strong>City:</strong>
                   </label>
-                  <input type="text" class="form-control" id="city" v-model.trim="order.city">
+                  <input type="text" class="form-control" id="city" v-model.trim="order.city" required>
                 </div>
               </div>
               <div class="row">
@@ -215,7 +215,7 @@
                   <label for="state" class="form-label">
                     <strong>State:</strong>
                   </label>
-                  <select class="form-select" id="state" v-model.trim="order.state">
+                  <select class="form-select" id="state" v-model.trim="order.state" required>
                     <option disabled value="">Select State</option>
                     <option v-for="(state, key) in states" :key="key" :value="key">{{ state }}</option>
                   </select>
@@ -224,7 +224,7 @@
                   <label for="zip" class="form-label">
                     <strong>Zip/Postal Code:</strong>
                   </label>
-                  <input type='number' class="form-control" id="zip" v-model.number="order.zip">
+                  <input type='number' class="form-control" id="zip" v-model.number="order.zip" required>
                 </div>
               </div>
               <div class="row">
